@@ -1,0 +1,137 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.timetable {
+  display: flex;
+}
+
+.time-slots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.day-container {
+  display: flex;
+}
+
+.day {
+  margin: 0 10px;
+}
+
+.slots-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-slot {
+  margin: 5px 0;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.day .slots-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.timetable-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.timetable-table th, .timetable-table td {
+  padding: 8px;
+  padding-right: 30px;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+
+.timeslot-header, .day-header {
+  padding-right: 20px; /* Adjust as needed */
+}
+
+/* App.css */
+
+.time-slot {
+  margin: 5px 0;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.slot-with-label:hover {
+  cursor: pointer;
+}
+
+.additional-info {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  left: calc(100% - 30px);
+  width: 200px;
+  height: 200px;
+  padding: 5px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  color: black;
+  display: none; /* Hide initially */
+}
+
+.hover-overlay {
+  position: absolute;
+  color: black;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 2;
+}
+
+.time-slot:hover .additional-info {
+  display: block;
+}
+
+.timetable {
+  padding-top: 40px;
+  padding-bottom: 200px;
+}
