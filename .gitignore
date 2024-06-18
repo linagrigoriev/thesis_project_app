@@ -26,3 +26,5 @@
 /flask-server/thesis_work/__pycache__
 /flask-server/thesis_work/old/CSP_method/__pycache__
 /flask-server/thesis_work/old/GA_method/__pycache__
+
+university_timetable.db 
