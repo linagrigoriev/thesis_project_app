@@ -62,20 +62,28 @@ function TimetableComponent({ data }) {
                         >
                           {slot.label && (
                             <>
-                              {slot.group_number === "0" ? (
-                                `Curs, ${slot.label}`
-                              ) : (
-                                `Seminar, ${slot.label}, grupa ${slot.group_number}`
-                              )}
+                              {slot.group_subgroup_number === "0" ? (
+                                  `Curs, ${slot.label}`
+                                ) : (
+                                  slot.seminar_laboratory === 'S' ? (
+                                    `Sem, ${slot.label}, Gr ${slot.group_subgroup_number}`
+                                  ) : (
+                                    `Lab, ${slot.label}, Sem ${slot.group_subgroup_number}`
+                                  )
+                                )}
                               {hoveredSlot &&
                                 hoveredSlot.dayIndex === dayIndex &&
                                 hoveredSlot.slotIndex === slotIndex &&
                                 hoveredSlot.label === slot.label && (
                                   <div className="additional-info">
-                                    {slot.group_number === "0" ? (
-                                      `Curs, ${slot.course_name}, ${slot.lecturer}`
+                                    {slot.group_subgroup_number === "0" ? (
+                                      `Curs, ${slot.course_name}, ${slot.professor}`
                                     ) : (
-                                      `Seminar, ${slot.course_name}, ${slot.lecturer}, Grupa ${slot.group_number}`
+                                      slot.seminar_laboratory === 'S' ? (
+                                        `Seminar, ${slot.course_name}, ${slot.professor}, Grupa ${slot.group_subgroup_number}`
+                                      ) : (
+                                        `Laborator, ${slot.course_name}, ${slot.professor}, Semigrupa ${slot.group_subgroup_number}`
+                                      )
                                     )}
                                   </div>
                                 )}
@@ -133,42 +141,52 @@ function App() {
       alert("Please select an option");
       return;
     }
-  
+
     try {
       let data_json = {};
       if (selectedOption === "2") {
-        const response = await fetch(`/generate_plot_room?choice_id=${selectedId}`);
+        const response = await fetch(
+          `/generate_plot_room?choice_id=${selectedId}`
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch timetable data');
+          throw new Error("Failed to fetch timetable data");
         }
         data_json = await response.json();
       } else if (selectedOption === "1") {
-        const response = await fetch(`/generate_plot_professor?choice_id=${selectedId}`);
+        const response = await fetch(
+          `/generate_plot_professor?choice_id=${selectedId}`
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch timetable data');
+          throw new Error("Failed to fetch timetable data");
         }
         data_json = await response.json();
       } else if (selectedOption === "0") {
-        const response = await fetch(`/generate_plot_study_program?choice_id=${selectedId}`);
+        const response = await fetch(
+          `/generate_plot_study_program?choice_id=${selectedId}`
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch timetable data');
+          throw new Error("Failed to fetch timetable data");
         }
         data_json = await response.json();
       }
-  
+
       if (!Array.isArray(data_json)) {
-        throw new Error('Data is not in the expected format');
+        throw new Error("Data is not in the expected format");
       }
-  
-      const groupNames = ["0", "1", "2", "3"]
-      
+
+      const groupNames = ["0", "1", "2", "3"];
+
       // Create a dictionary to store colors for each group number
       const groupColors = {};
-      groupNames.forEach(groupName => {
-        const randomColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.5)`;
+      groupNames.forEach((groupName) => {
+        const randomColor = `rgba(${Math.floor(
+          Math.random() * 256
+        )}, ${Math.floor(Math.random() * 256)}, ${Math.floor(
+          Math.random() * 256
+        )}, 0.5)`;
         groupColors[groupName] = randomColor;
       });
-  
+
       const days = [
         { id: "1", day_name: "Luni" },
         { id: "2", day_name: "Marti" },
@@ -176,45 +194,53 @@ function App() {
         { id: "4", day_name: "Joi" },
         { id: "5", day_name: "Vineri" },
       ];
-  
+
       const timetable = days.map((day) => {
         return {
           label: day.day_name,
-          slots: [...Array(6).keys()].map(i => {
+          slots: [...Array(6).keys()].map((i) => {
             const timeslotId = (i + 1).toString();
-            const slotSolution = data_json.filter(item => item.timeslot_id === timeslotId && item.day_name === day.day_name);
+            const slotSolution = data_json.filter(
+              (item) =>
+                item.timeslot_id === timeslotId &&
+                item.day_name === day.day_name
+            );
             if (slotSolution.length === 0) {
-              return [{
-                label: "",
-                color: "transparent",
-              }];
+              return [
+                {
+                  label: "",
+                  color: "transparent",
+                },
+              ];
             } else {
-              return slotSolution.map(solution => {
+              return slotSolution.map((solution) => {
                 const courseName = solution.course_name;
-                const lecturerName = solution.lecturer_name;
-                const groupNumber = solution.group_number;
+                const lecturerName = solution.professor_name;
+                const groupSubgroupNumber = solution.group_subgroup_number;
                 const shortName = solution.short_name;
-                const color = groupColors[groupNumber];
+                const color = groupColors[groupSubgroupNumber];
+                const seminarLaboratory = solution.seminar_laboratory;
                 return {
                   label: shortName,
                   course_name: courseName,
-                  lecturer: lecturerName,
-                  group_number: groupNumber,
+                  professor: lecturerName,
+                  group_subgroup_number: groupSubgroupNumber,
                   color: color,
+                  seminar_laboratory: seminarLaboratory,
                 };
               });
             }
           }),
         };
       });
-  
+
       setTimetableData(timetable);
       setShowTimetable(true);
     } catch (error) {
-      console.error('Error:', error.message);
+      console.error("Error:", error.message);
     }
   };
-  
+
   useEffect(() => {
     if (selectedOption === "1") {
       fetch("/professors")

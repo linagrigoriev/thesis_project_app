@@ -11,7 +11,7 @@ def print_table(cursor, table_name):
 conn = sqlite3.connect('university_timetable.db')
 c = conn.cursor()
 
-tables = ['Lecturers', 'Courses', 'Rooms', 'Study_Programs', 'TimeSlots', 'Days']
+tables = ['Professors', 'Courses', 'Rooms', 'Study_Programs', 'TimeSlots', 'Days']
 for table in tables:
     print_table(c, table)
 

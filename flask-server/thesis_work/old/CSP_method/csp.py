@@ -37,15 +37,15 @@ for group_id, study_program_id, _ in groups_structure_data:
 # Valoarea pentru fiecare keie este compusă dintr-o listă cu informații
 lectures_seminars_data = {}
 for course in courses_data:
-    course_id, course_name, lecturer_id, study_program_id = course
+    course_id, course_name, professor_id, study_program_id = course
     # Extragerea numărului de studenți pentru ora respectivă 
     num_study_program = next((item[1] for item in study_programs_data if item[0] == study_program_id), None)
-    lectures_seminars_data.update({course_id: [course_name, lecturer_id, study_program_id, num_study_program]})
+    lectures_seminars_data.update({course_id: [course_name, professor_id, study_program_id, num_study_program]})
     # După ce am parcurs cursul, adaugăm informații despre seminare în dicționar
     # Keia este construită din course_id și ultimele 2 elemente din codul grupei de seminar (ca de exemplu, 'G1')
     for group_id in grouped_groups_study_programs[study_program_id]:
         num_study_program = next((item[2] for item in groups_structure_data if item[0] == group_id), None)
-        lectures_seminars_data.update({course_id + group_id[-2:]: [course_name, lecturer_id, study_program_id, num_study_program]})
+        lectures_seminars_data.update({course_id + group_id[-2:]: [course_name, professor_id, study_program_id, num_study_program]})
 
 # Crearea unui dicționar care genrează id-uri pentru a vedea câte slot-uri dispoibile în total avem
 # Keia este compusă din id-ul camerei + id-ul din tabela time_slots + id-ul zilei
@@ -61,17 +61,17 @@ for day in days_data[::-1]: # L-am inversat deoarece în așa fel îmi programea
             variable = f"{room_id}_{slot_id}_{day_id}"
             capacities.update({variable: room_capacity})
 
-# Dictionary with lecturers and all of their courses, student groups with all of their courses
-lecturers_courses = {}
+# Dictionary with Professors and all of their courses, student groups with all of their courses
+professors_courses = {}
 study_programs_courses = {}
 
 # Gruparea cursurilor și seminarelor după profesori și specializări / grupe de seminare
 for lecture_seminar_id in lectures_seminars_data:
-    _, lecturer_id, study_program_id, _ = lectures_seminars_data[lecture_seminar_id]
-    if lecturer_id in lecturers_courses:
-        lecturers_courses[lecturer_id].append(lecture_seminar_id)
+    _, professor_id, study_program_id, _ = lectures_seminars_data[lecture_seminar_id]
+    if professor_id in professors_courses:
+        professors_courses[professor_id].append(lecture_seminar_id)
     else:
-        lecturers_courses[lecturer_id] = [lecture_seminar_id]
+        professors_courses[professor_id] = [lecture_seminar_id]
     if study_program_id in study_programs_courses:
         study_programs_courses[study_program_id].append(lecture_seminar_id)
     else:
@@ -93,7 +93,7 @@ for lecture_seminar_id in lectures_seminars_data:
         csp_problem.addConstraint(lambda room_id=room_id, lecture_seminar_id=lecture_seminar_id, num_study_program=num_study_program: num_study_program <= capacities[room_id], (lecture_seminar_id,))
 
 #Constrângere: nici-un profesor / specializare nu poate avea ore în același timeslot și în aceeași zi
-for lecturer_id, courses in lecturers_courses.items():
+for professor_id, courses in professors_courses.items():
     for lecture_seminar_id1 in courses:
         for lecture_seminar_id2 in courses:
             if lecture_seminar_id1 != lecture_seminar_id2: 

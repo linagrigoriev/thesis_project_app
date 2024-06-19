@@ -7,8 +7,8 @@ from thesis_work.LabelPlot import plot_lecturer, plot_room, plot_sg
 app = Flask(__name__)
 timetable_data = UniversityTimetableData('university_timetable.db')
 solution = CSP_algorithm(timetable_data).items()
-rooms_courses_data_solution = genetic_algorithm(timetable_data)
-# print(rooms_courses_data_solution)
+# solution = genetic_algorithm(timetable_data)
+# print(solution)
 
 @app.route('/')
 def index():
@@ -18,7 +18,7 @@ def index():
 def get_professors():
     try:
         # Assuming professors are stored in some data structure accessible in timetable_data
-        professors = [professor.lecturer_name for professor in timetable_data.lecturers]
+        professors = [professor.professor_name for professor in timetable_data.professors]
         return jsonify({'professors': professors})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -44,7 +44,7 @@ def generate_plot_room():
     try:
         choice_name = request.args.get('choice_id')
         choice_id = timetable_data.get_room_id(choice_name)
-        plot_data = plot_room(timetable_data, rooms_courses_data_solution, choice_id)
+        plot_data = plot_room(timetable_data, solution, choice_id)
         return plot_data
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -54,7 +54,8 @@ def generate_plot_professor():
     try:
         choice_name = request.args.get('choice_id')
         choice_id = timetable_data.get_professor_id_by_using_name(choice_name)
-        plot_data = plot_lecturer(timetable_data, rooms_courses_data_solution, choice_id)
+        plot_data = plot_lecturer(timetable_data, solution, choice_id)
+        # print()
         return plot_data
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -63,14 +64,10 @@ def generate_plot_professor():
 def generate_plot_study_program():
     try:
         choice_id = request.args.get('choice_id')
-        plot_data = plot_sg(timetable_data, rooms_courses_data_solution, choice_id)
+        plot_data = plot_sg(timetable_data, solution, choice_id)
         return plot_data
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,9 +3,9 @@ import sqlite3
 conn = sqlite3.connect('university_timetable.db')
 c = conn.cursor()
 
-c.execute('''CREATE TABLE IF NOT EXISTS Lecturers (
-             lecturer_id TEXT PRIMARY KEY,
-             lecturer_name TEXT)''')
+c.execute('''CREATE TABLE IF NOT EXISTS Professors (
+             professor_id TEXT PRIMARY KEY,
+             professor_name TEXT)''')
 
 c.execute('''CREATE TABLE IF NOT EXISTS Rooms (
              room_id TEXT PRIMARY KEY,
@@ -19,10 +19,13 @@ c.execute('''CREATE TABLE IF NOT EXISTS Study_Programs (
 c.execute('''CREATE TABLE IF NOT EXISTS Courses (
              course_id TEXT PRIMARY KEY,
              course_name TEXT,
-             lecturer_id TEXT,
+             professor1_id TEXT,
+             professor2_id TEXT,
+             seminar_laboratory TEXT,
              study_program_id TEXT,
              short_name TEXT,
-             FOREIGN KEY (lecturer_id) REFERENCES Lecturers(lecturer_id),
+             FOREIGN KEY (professor1_id) REFERENCES Professors(professor_id),
+             FOREIGN KEY (professor2_id) REFERENCES Professors(professor_id),
              FOREIGN KEY (study_program_id) REFERENCES Study_Programs(study_program_id))''')
 
 c.execute('''CREATE TABLE IF NOT EXISTS Groups_Structure (
@@ -31,94 +34,108 @@ c.execute('''CREATE TABLE IF NOT EXISTS Groups_Structure (
              num_group INTEGER,
              FOREIGN KEY (study_program_id) REFERENCES Study_Programs(study_program_id))''')
 
-lecturers_data = [
-    ('L1', 'lect. dr. Vlad Sorin'),
-    ('L2', 'conf. dr. Boghean Carmen'),
-    ('L3', 'lect. dr. ing. Balan Ionut'),
-    ('L4', 'lect. dr. Cozorici Angela'),
-    ('L5', 'lect. dr. State Mihaela'),
-    ('L6', 'conf. dr. Lupan Mariana'),
-    ('L7', 'conf. dr. Socaciu Tiberiu'),
-    ('L8', 'lect. dr. ing. Sfichi Stefan'),
-    ('L9', 'as. dr. Cosmulese Gabriela'),
-    ('L10', 'lect. dr. Bores Ana-Maria'),
-    ('L11', 'lect. dr. Grigoras-Ichim Claudia'),
-    ('L12', 'conf. dr. Boghean Florin'),
-    ('L13', 'lect. dr. Vlad Mariana'),
-    ('L14', 'as. dr. Cosmulese Gabriela'),
-    ('L15', 'lect. dr. Ciubotariu Marius'),
-    ('L16', 'drd. Brinzaru Simona'),
-    ('L17', 'conf. dr. Tulvinschi Mihaela'),
-    ('L18', 'conf. dr. Kicsi Rozalia'),
-    ('L19', 'conf. dr. Mihalciuc Camelia'),
-    ('L20', 'conf. dr. Vancea Romulus'),
-    ('L21', 'lect. dr. Hurjui Marcela'),
-    ('L22', 'conf. dr. Baesu Camelia'),
-    ('L23', 'lect. dr. Colomeischi Tudor'),
-    ('L24', 'lect. dr. Macovei Anamaria'),
-    ('L25', 'dr. Ilas Constantin'),
-    ('L26', 'as. drd. colab. Scheuleac Adelina'),
-    ('L27', 'lect. dr. Ichim Cristinel'),
-    ('L28', 'conf. dr. Cibotaru Irina')
+c.execute('''CREATE TABLE IF NOT EXISTS Subgroups_Structure (
+             subgroup_id TEXT PRIMARY KEY,
+             study_program_id TEXT,
+             num_subgroup INTEGER,
+             FOREIGN KEY (study_program_id) REFERENCES Study_Programs(study_program_id))''')
+
+professors_data = [
+    ('P1', 'lect. dr. Vlad Sorin'),
+    ('P2', 'conf. dr. Boghean Carmen'),
+    ('P3', 'lect. dr. ing. Balan Ionut'),
+    ('P4', 'lect. dr. Cozorici Angela'),
+    ('P5', 'lect. dr. State Mihaela'),
+    ('P6', 'conf. dr. Lupan Mariana'),
+    ('P7', 'conf. dr. Socaciu Tiberiu'),
+    ('P8', 'lect. dr. ing. Sfichi Stefan'),
+    ('P9', 'as. dr. Cosmulese Gabriela'),
+    ('P10', 'lect. dr. Bores Ana-Maria'),
+    ('P11', 'lect. dr. Grigoras-Ichim Claudia'),
+    ('P12', 'conf. dr. Boghean Florin'),
+    ('P13', 'lect. dr. Vlad Mariana'),
+    ('P14', 'as. dr. Cosmulese Gabriela'),
+    ('P15', 'lect. dr. Ciubotariu Marius'),
+    ('P16', 'drd. Brinzaru Simona'),
+    ('P17', 'conf. dr. Tulvinschi Mihaela'),
+    ('P18', 'conf. dr. Kicsi Rozalia'),
+    ('P19', 'conf. dr. Mihalciuc Camelia'),
+    ('P20', 'conf. dr. Vancea Romulus'),
+    ('P21', 'lect. dr. Hurjui Marcela'),
+    ('P22', 'conf. dr. Baesu Camelia'),
+    ('P23', 'lect. dr. Colomeischi Tudor'),
+    ('P24', 'lect. dr. Macovei Anamaria'),
+    ('P25', 'dr. Ilas Constantin'),
+    ('P26', 'as. drd. colab. Scheuleac Adelina'),
+    ('P27', 'lect. dr. Ichim Cristinel'),
+    ('P28', 'conf. dr. Cibotaru Irina'),
+    ('P29', 'drd. Brinzaru Simona'),
+    ('P30', 'lect. dr. Ciubotariu Marius')
 ]
 
 courses_data = [
-    ('IE321', 'Proiectarea sistemelor informatice', 'L1', 'IE3', 'PSI'),
-    ('IE322', 'Strategii investiţionale în afaceri', 'L6', 'IE3', 'INVEST'),
-    ('IE323', 'Statistică macroeconomică', 'L5', 'IE3', 'Stat macro'),
-    ('IE324', 'Dispozitive şi aplicaţii mobile', 'L3', 'IE3', 'Disp apl mob'),
-    # ('IE325', 'Securitatea sistemelor informatice', 'L7', 'IE3', 'Sec sist inform'),
-    # ('IE326', 'Geopolitică', 'L2', 'IE3', 'Geopol'),
-    ('IE327', 'Grafică și programare pe internet', 'L8', 'IE3', 'Gr prg Int'),
-    ('FB321', 'Comunicare și raportare financiară', 'L11', 'FB3', 'Com rap fin'),
-    ('FB322', 'Instituții financiar-bancare internaționale', 'L9', 'FB3', 'Inst fin b inte'),
-    ('FB323', 'Gestiune bancară', 'L13', 'FB3', 'Gest banc'),
-    # ('FB324', 'Audit financiar', 'L10', 'FB3', 'Aud fin'),
-    # ('FB325', 'Fiscalitate', 'L17', 'FB3', 'Fisc'),
-    # ('FB326', 'Controlling', 'L12', 'FB3', 'CTRL'),
-    ('FB327', 'Analiză financiară', 'L14', 'FB3', 'Anal fin'),
-    # ('AF321', 'Tranzacții și tehnici comerciale', 'L18', 'AF3', 'TrTehnCom'),
-    ('AF322', 'Fiscalitate', 'L17', 'AF3', 'Fisc'),
-    ('AF323', 'Contabilitate managerială', 'L19', 'AF3', 'CtMng'),
-    ('AF324', 'Managementul producției', 'L21', 'AF3', 'Mng prod'),
-    ('AF325', 'Baze de date', 'L3', 'AF3', 'BzDt'),
-    # ('AF326', 'Tehnica negocierilor în afaceri', 'L14', 'AF3', 'Tehn neg af'),
-    ('AF327', 'Contabilitatea grupurilor de societăți', 'L13', 'AF3', 'Contab grup'),
-    ('AI321', 'Geopolitică', 'L2', 'AI3', 'Geopol'),
-    ('AI322', 'Negocieri în afaceri internaționale', 'L22', 'AI3', 'NegAI'),
-    ('AI323', 'Investiții internaționale', 'L6', 'AI3', 'Invest int'),
-    ('AI324', 'Burse internaționale de mărfuri', 'L4', 'AI3', 'Burse'),
-    ('AI325', 'Gestiunea riscului în economia globală', 'L5', 'AI3', 'Gest risc'),
-    # ('AI326', 'Asigurări internaționale', 'L18', 'AI3', 'Asig int'),
-    # ('IE221', 'Probabilități și statistică matematică', 'L17', 'IE2', 'Pr st mat'),
-    ('IE222', 'Multimedia', 'L8', 'IE2', 'Multim'),
-    ('IE223', 'Programare orientată pe obiect', 'L7', 'IE2', 'POO'),
-    # ('IE224', 'Cercetări operaționale', 'L24', 'IE2', 'C op'),
-    # ('IE225', 'Limba engleză', 'L25', 'IE2', 'Lb eng'),
-    # ('IE226', 'Educaţie fizică şi sport', 'L26', 'IE2', 'EDF'),
-    # ('IE227', 'Programarea aplicaţiilor Windows', 'L8', 'IE2', 'Pr Wind'),
-    # ('FB221', 'Contabilitate manageriala', 'L19', 'FB2', 'CtMang'),
-    ('FB222', 'Contabilitate bancară', 'L13', 'FB2', 'Cont Banc'),
-    # ('FB223', 'Finanțe publice', 'L27', 'FB2', 'FinP'),
-    ('FB224', 'Econometrie', 'L24', 'FB2', 'Ec.metrie'),
-    # ('FB225', 'Finanțe personale', 'L10', 'FB2','Fin pers'),
-    ('FB226', 'Finanţe corporative', 'L28', 'FB2', 'Fin corp'),
-    # ('FB227', 'Educaţie fizică şi sport', 'L26', 'IE2', 'EDF'),
+    ('IE321', 'Proiectarea sistemelor informatice', 'P1', 'P1', 'L', 'IE3', 'PSI'),
+    ('IE322', 'Strategii investiţionale în afaceri', 'P6', 'P4', 'S', 'IE3', 'INVEST'),
+    ('IE323', 'Statistică macroeconomică', 'P5', 'P5', 'S', 'IE3',  'Stat macro'),
+    ('IE324', 'Dispozitive şi aplicaţii mobile', 'P3', 'P3', 'L', 'IE3', 'Disp apl mob'),
+    # ('IE325', 'Securitatea sistemelor informatice', 'P7', 'P7', 'IE3', 'L', 'Sec sist inform'),
+    # ('IE326', 'Geopolitică', 'P2', 'P2', 'IE3', 'S', 'Geopol'),
+    ('IE327', 'Grafică și programare pe internet', 'P8', 'P8', 'L', 'IE3', 'Gr prg Int'),
+    ('FB321', 'Comunicare și raportare financiară', 'P11', 'P11', 'S', 'FB3', 'Com rap fin'),
+    ('FB322', 'Instituții financiar-bancare internaționale', 'P9', 'P9', 'S', 'FB3', 'Inst fin b inte'),
+    ('FB323', 'Gestiune bancară', 'P13', 'P13', 'S', 'FB3', 'Gest banc'),
+    ('FB324', 'Audit financiar', 'P10', 'P10', 'S', 'FB3', 'Aud fin'),
+    ('FB325', 'Fiscalitate', 'P17', 'P29', 'S', 'FB3', 'Fisc'),
+    ('FB326', 'Controlling', 'P12', 'P30', 'S', 'FB3', 'CTRL'),
+    # ('FB327', 'Analiză financiară', 'P14', 'FB3', 'Anal fin'),
+    # ('AF321', 'Tranzacții și tehnici comerciale', 'P18', 'AF3', 'TrTehnCom'),
+    # ('AF322', 'Fiscalitate', 'P17', 'AF3', 'Fisc'),
+    # ('AF323', 'Contabilitate managerială', 'P19', 'AF3', 'CtMng'),
+    # ('AF324', 'Managementul producției', 'P21', 'AF3', 'Mng prod'),
+    # ('AF325', 'Baze de date', 'P3', 'AF3', 'BzDt'),
+    # ('AF326', 'Tehnica negocierilor în afaceri', 'P14', 'AF3', 'Tehn neg af'),
+    # ('AF327', 'Contabilitatea grupurilor de societăți', 'P13', 'AF3', 'Contab grup'),
+    # ('AI321', 'Geopolitică', 'P2', 'AI3', 'Geopol'),
+    # ('AI322', 'Negocieri în afaceri internaționale', 'P22', 'AI3', 'NegAI'),
+    # ('AI323', 'Investiții internaționale', 'P6', 'AI3', 'Invest int'),
+    # ('AI324', 'Burse internaționale de mărfuri', 'P4', 'AI3', 'Burse'),
+    # ('AI325', 'Gestiunea riscului în economia globală', 'P5', 'AI3', 'Gest risc'),
+    # ('AI326', 'Asigurări internaționale', 'P18', 'AI3', 'Asig int'),
+    # ('IE221', 'Probabilități și statistică matematică', 'P17', 'IE2', 'Pr st mat'),
+    # ('IE222', 'Multimedia', 'P8', 'IE2', 'Multim'),
+    # ('IE223', 'Programare orientată pe obiect', 'P7', 'IE2', 'POO'),
+    # ('IE224', 'Cercetări operaționale', 'P24', 'IE2', 'C op'),
+    # ('IE225', 'Pimba engleză', 'P25', 'IE2', 'Pb eng'),
+    # ('IE226', 'Educaţie fizică şi sport', 'P26', 'IE2', 'EDF'),
+    # ('IE227', 'Programarea aplicaţiilor Windows', 'P8', 'IE2', 'Pr Wind'),
+    # ('FB221', 'Contabilitate manageriala', 'P19', 'FB2', 'CtMang'),
+    # ('FB222', 'Contabilitate bancară', 'P13', 'FB2', 'Cont Banc'),
+    # ('FB223', 'Finanțe publice', 'P27', 'FB2', 'FinP'),
+    # ('FB224', 'Econometrie', 'P24', 'FB2', 'Ec.metrie'),
+    # ('FB225', 'Finanțe personale', 'P10', 'FB2','Fin pers'),
+    # ('FB226', 'Finanţe corporative', 'P28', 'FB2', 'Fin corp'),
+    # ('FB227', 'Educaţie fizică şi sport', 'P26', 'IE2', 'EDF'),
 ]
 
 groups_structure_data = [
-    ('IE3G1', 'IE3', 20),
-    ('IE3G2', 'IE3', 20),
-    ('FB3G1', 'FB3', 27),
-    ('FB3G2', 'FB3', 28),
-    ('AF3G1', 'AF3', 16),
-    ('AF3G2', 'AF3', 17),
-    ('AI3G1', 'AI3', 29),
-    ('IE2G1', 'IE2', 26),
-    ('IE2G2', 'IE2', 26),
-    ('FB2G1', 'FB2', 22),
-    ('FB2G2', 'FB2', 22),
-    ('FB2G3', 'FB2', 23),
+    ('IE3S1', 'IE3', 20),
+    ('IE3S2', 'IE3', 20),
+    ('FB3S1', 'FB3', 27),
+    ('FB3S2', 'FB3', 28),
+    ('AF3S1', 'AF3', 16),
+    ('AF3S2', 'AF3', 17),
+    ('AI3S1', 'AI3', 29),
+    ('IE2S1', 'IE2', 26),
+    ('IE2S2', 'IE2', 26),
+    ('FB2S1', 'FB2', 22),
+    ('FB2S2', 'FB2', 22),
+    ('FB2S3', 'FB2', 23),
+]
+
+subgroups_structure_data = [
+    ('IE3L1', 'IE3', 14),
+    ('IE3L2', 'IE3', 13),
+    ('IE3L3', 'IE3', 13),
 ]
 
 rooms_data = [
@@ -140,11 +157,12 @@ study_programs_data = [
     ('FB2', 55),
 ]
 
-c.executemany("INSERT INTO Lecturers VALUES (?, ?)", lecturers_data)
+c.executemany("INSERT INTO Professors VALUES (?, ?)", professors_data)
 c.executemany("INSERT INTO Rooms VALUES (?, ?, ?)", rooms_data)
 c.executemany("INSERT INTO Study_Programs VALUES (?, ?)", study_programs_data)
-c.executemany("INSERT INTO Courses VALUES (?, ?, ?, ?, ?)", courses_data)
+c.executemany("INSERT INTO Courses VALUES (?, ?, ?, ?, ?, ?, ?)", courses_data)
 c.executemany("INSERT INTO Groups_Structure VALUES (?, ?, ?)", groups_structure_data)
+c.executemany("INSERT INTO Subgroups_Structure VALUES (?, ?, ?)", subgroups_structure_data)
 
 c.execute('''CREATE TABLE IF NOT EXISTS TimeSlots (
              start_time TEXT,

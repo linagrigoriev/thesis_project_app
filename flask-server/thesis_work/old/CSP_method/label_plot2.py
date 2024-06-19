@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import sqlite3
 
-def generate_labeled_plot(solution_items, lectures_seminars_data, c, choice_id, lecturers_data, courses_data, x_choice):
+def generate_labeled_plot(solution_items, lectures_seminars_data, c, choice_id, professors_data, courses_data, x_choice):
     c.execute("SELECT * FROM TimeSlots")
     timeslots_data = c.fetchall()
 
@@ -38,13 +38,13 @@ def generate_labeled_plot(solution_items, lectures_seminars_data, c, choice_id, 
             for element in lecturer_id_data:
                 plot_bar(element)
 
-            plt.title(f"Orar pentru {next((item[1] for item in lecturers_data if item[0] == choice_id), None)}")
+            plt.title(f"Orar pentru {next((item[1] for item in professors_data if item[0] == choice_id), None)}")
         else:
             print("Orarul e liber")
             exit()
 
     elif x_choice == 0:
-        study_program_id_data = [[next((item[1] for item in lecturers_data if item[0] == lectures_seminars_data[course_seminar_id][1]), None), slot_id[:-4], slot_id] for course_seminar_id, slot_id in solution_items if course_seminar_id[:3] == choice_id and calculate_overlap(slot_id, slot_id)]
+        study_program_id_data = [[next((item[1] for item in professors_data if item[0] == lectures_seminars_data[course_seminar_id][1]), None), slot_id[:-4], slot_id] for course_seminar_id, slot_id in solution_items if course_seminar_id[:3] == choice_id and calculate_overlap(slot_id, slot_id)]
 
         if study_program_id_data:
             study_program_id_data = sorted(study_program_id_data, key=lambda x: (x[2][-3:], x[2][-2], x[2][-1]))
@@ -58,7 +58,7 @@ def generate_labeled_plot(solution_items, lectures_seminars_data, c, choice_id, 
             exit()
 
     elif x_choice == 2:
-        room_id_data = [[next((item[1] for item in lecturers_data if item[0] == lectures_seminars_data[course_seminar_id][1]), None), course_seminar_id, slot_id] for course_seminar_id, slot_id in solution_items if slot_id[:-4] == choice_id and calculate_overlap(slot_id, slot_id)]
+        room_id_data = [[next((item[1] for item in professors_data if item[0] == lectures_seminars_data[course_seminar_id][1]), None), course_seminar_id, slot_id] for course_seminar_id, slot_id in solution_items if slot_id[:-4] == choice_id and calculate_overlap(slot_id, slot_id)]
 
         if room_id_data:
             room_id_data = sorted(room_id_data, key=lambda x: (x[2][-3:], x[2][-2], x[2][-1]))
@@ -84,18 +84,18 @@ def generate_labeled_plot(solution_items, lectures_seminars_data, c, choice_id, 
 def pass_data_to_generate_plot(solution_items, lectures_seminars_data):
     conn = sqlite3.connect('university_timetable.db')
     c = conn.cursor()
-    c.execute("SELECT * FROM Lecturers")
-    lecturers_data = c.fetchall()
+    c.execute("SELECT * FROM Professors")
+    professors_data = c.fetchall()
     c.execute("SELECT * FROM Courses")
     courses_data = c.fetchall()
 
     answer = int(input("\nGenerarea unui graf pe specializare (0), profesor (1) sau sală (2): "))
 
     if answer == 1:
-        lecturers_list = [f"{i[0]} {i[1]}" for i in lecturers_data]
+        lecturers_list = [f"{i[0]} {i[1]}" for i in professors_data]
         lecturer_answer = str(input(f"\nAlege un profesor din lista: {lecturers_list}\nIntrodu id-ul profesorului: "))
-        if lecturer_answer in [i[0] for i in lecturers_data]:
-            generate_labeled_plot(solution_items, lectures_seminars_data, c, lecturer_answer, lecturers_data, courses_data, answer)
+        if lecturer_answer in [i[0] for i in professors_data]:
+            generate_labeled_plot(solution_items, lectures_seminars_data, c, lecturer_answer, professors_data, courses_data, answer)
         else:
             print("\nRăspunsul nu este valid")
     elif answer == 0:
@@ -104,7 +104,7 @@ def pass_data_to_generate_plot(solution_items, lectures_seminars_data):
         study_programs_list = [i[0] for i in study_programs_data]
         study_program_answer = str(input(f"\nAlege o specializare din lista: {study_programs_list}\nIntrodu id-ul specializare: "))
         if study_program_answer in [i[0] for i in study_programs_data]:
-            generate_labeled_plot(solution_items, lectures_seminars_data, c, study_program_answer, lecturers_data, courses_data, answer)
+            generate_labeled_plot(solution_items, lectures_seminars_data, c, study_program_answer, professors_data, courses_data, answer)
         else:
             print("\nRăspunsul nu este valid")
     elif answer == 2:
@@ -113,7 +113,7 @@ def pass_data_to_generate_plot(solution_items, lectures_seminars_data):
         rooms_list = [f"{i[0]} {i[1]}" for i in rooms_data]
         room_answer = str(input(f"\nAlege o sală din lista: {rooms_list}\nIntrodu id-ul salei: "))
         if room_answer in [i[0] for i in rooms_data]:
-            generate_labeled_plot(solution_items, lectures_seminars_data, c, room_answer, lecturers_data, courses_data, answer)
+            generate_labeled_plot(solution_items, lectures_seminars_data, c, room_answer, professors_data, courses_data, answer)
 
     else:
         print("\nRăspunsul nu este valid")

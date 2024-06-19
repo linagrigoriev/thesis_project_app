@@ -12,10 +12,10 @@ class DataBase:
     def close_conn(self):
         self.conn.close()
 
-class Lecturer:
-    def __init__(self, lecturer_id, lecturer_name):
-        self.lecturer_id = lecturer_id
-        self.lecturer_name = lecturer_name
+class Professor:
+    def __init__(self, professor_id, professor_name):
+        self.professor_id = professor_id
+        self.professor_name = professor_name
 
 class Room:
     def __init__(self, room_id, room_name, room_capacity):
@@ -29,10 +29,12 @@ class StudyProgram:
         self.program_num = program_num
 
 class Course:
-    def __init__(self, course_id, course_name, lecturer_id, program_id, short_name):
+    def __init__(self, course_id, course_name, professor1_id, professor2_id, seminar_laboratory, program_id, short_name):
         self.course_id = course_id
         self.course_name = course_name
-        self.lecturer_id = lecturer_id
+        self.professor1_id = professor1_id
+        self.professor2_id = professor2_id
+        self.seminar_laboratory = seminar_laboratory
         self.program_id = program_id
         self.short_name = short_name
 
@@ -41,6 +43,12 @@ class Group:
         self.group_id = group_id
         self.program_id = program_id
         self.group_num = group_num
+
+class Subgroup:
+    def __init__(self, group_id, program_id, subgroup_num):
+        self.subgroup_id = group_id
+        self.program_id = program_id
+        self.subgroup_num = subgroup_num
 
 class TimeSlot:
     def __init__(self, slot_id, start_time, end_time):
@@ -56,32 +64,35 @@ class Day:
 class UniversityTimetableData:
     def __init__(self, db_name):
         self.db = DataBase(db_name)
-        self.lecturers = []
+        self.professors = []
         self.rooms = []
         self.study_programs = []
         self.courses = []
         self.groups_structure = []
+        self.subgroups_structure = []
         self.timeslots = []
         self.days = []
-        self.lecturers_courses = {}
+        self.professors_courses = {}
         self.study_programs_courses = {}
         self.lectures_seminars_data = {}
         self.capacities = {}
         self.fetch_and_initialize_data()
         self.grouped_groups = self.group_groups_by_study_program()
-        self.group_courses_by_lecturer_and_study_program()
+        self.grouped_subgroups = self.group_subgroups_by_study_program()
+        self.group_courses_by_professor_and_study_program()
         self.generate_lectures_seminars_data()
         self.generate_capacities()
 
     def fetch_and_initialize_data(self):
         tables = {
-            'Lecturers': Lecturer,
+            'Professors': Professor,
             'Rooms': Room,
             'Study_Programs': StudyProgram,
             'Courses': Course,
             'Groups_Structure': Group,
+            'Subgroups_Structure': Subgroup,
             'TimeSlots': TimeSlot,
-            'Days': Day
+            'Days': Day,
         }
 
         # Extragerea informației din baza de date și atribuirea ei obiectelor din clase
@@ -108,6 +119,16 @@ class UniversityTimetableData:
             else:
                 grouped_groups[group.program_id] = [group.group_id]
         return grouped_groups
+    
+    # Generarea dicționarului pentru gruparea grupelor pentru laboratoare după specializări
+    def group_subgroups_by_study_program(self):
+        grouped_subgroups = {}
+        for subgroup in self.subgroups_structure:
+            if subgroup.program_id in grouped_subgroups:
+                grouped_subgroups[subgroup.program_id].append(subgroup.subgroup_id)
+            else:
+                grouped_subgroups[subgroup.program_id] = [subgroup.subgroup_id]
+        return grouped_subgroups
 
     # Generarea dicționarului pentru a vedea câte ore de cursuri și seminar avem de programat, id-ul fiind keie
     # Valoarea pentru fiecare keie este numărul studenților
@@ -118,10 +139,15 @@ class UniversityTimetableData:
             self.lectures_seminars_data[course.course_id] = program_num
             # După ce am parcurs cursul, adaugăm informații despre seminare în dicționar
             # Keia este construită din course_id și ultimele 2 elemente din codul grupei de seminar (ca de exemplu, 'G1')
-            for group_id in self.grouped_groups.get(course.program_id, []):
-                program_num = next((group.group_num for group in self.groups_structure if group.group_id == group_id), None)
-                self.lectures_seminars_data[course.course_id + group_id[-2:]] = program_num
-        # print("\n lectures_seminars_data:", self.lectures_seminars_data)
+            if course.seminar_laboratory == 'S':
+                for group_id in self.grouped_groups.get(course.program_id, []):
+                    program_num = next((group.group_num for group in self.groups_structure if group.group_id == group_id), None)
+                    self.lectures_seminars_data[course.course_id + group_id[-2:]] = program_num
+            elif course.seminar_laboratory == 'L':
+                for subgroup_id in self.grouped_subgroups.get(course.program_id, []):
+                    program_num = next((subgroup.subgroup_num for subgroup in self.subgroups_structure if subgroup.subgroup_id == subgroup_id), None)
+                    self.lectures_seminars_data[course.course_id + subgroup_id[-2:]] = program_num
+        print("\n lectures_seminars_data:", self.lectures_seminars_data)
 
     # Crearea unui dicționar care genrează id-uri pentru a vedea câte slot-uri dispoibile în total avem
     # Keia este compusă din id-ul camerei + id-ul din tabela time_slots + id-ul zilei
@@ -135,25 +161,48 @@ class UniversityTimetableData:
         # print("\n capacities:", self.capacities)
 
     # Gruparea cursurilor și seminarelor după profesori și specializări / grupe de seminare
-    def group_courses_by_lecturer_and_study_program(self):
-        for course in self.courses:
-            if course.lecturer_id in self.lecturers_courses:
-                self.lecturers_courses[course.lecturer_id].append(course.course_id)
-                for group_id in self.grouped_groups[course.program_id]:
-                    self.lecturers_courses[course.lecturer_id].append(course.course_id + group_id[-2:])
+    def group_courses_by_professor_and_study_program(self):
+        def append_course(course_list, course_id, group_suffixes):
+            for suffix in group_suffixes:
+                course_list.append(f"{course_id}{suffix[-2:]}")
+        
+        def handle_professor_courses(professor_id, course_id, group_suffixes):
+            if professor_id in self.professors_courses:
+                append_course(self.professors_courses[professor_id], course_id, group_suffixes)
             else:
-                self.lecturers_courses[course.lecturer_id] = [course.course_id]
-                for group_id in self.grouped_groups[course.program_id]:
-                    self.lecturers_courses[course.lecturer_id].append(course.course_id + group_id[-2:])
+                self.professors_courses[professor_id] = [
+                    f"{course_id}{suffix[-2:]}" for suffix in group_suffixes
+                ]
+        
+        def handle_seminar_laboratory(course, professor_id):
+            if course.seminar_laboratory == 'S':
+                handle_professor_courses(professor_id, course.course_id, self.grouped_groups[course.program_id])
+            elif course.seminar_laboratory == 'L':
+                handle_professor_courses(professor_id, course.course_id, self.grouped_subgroups[course.program_id])
+        
+        for course in self.courses:
+            # Handle lecturer1 courses
+            if course.professor1_id in self.professors_courses:
+                self.professors_courses[course.professor1_id].append(course.course_id)
+            else:
+                self.professors_courses[course.professor1_id] = [course.course_id]
+            
+            # Handle lecturer2 courses if any
+            if course.professor2_id:
+                handle_seminar_laboratory(course, course.professor2_id)
+
+            # Handle study program courses
             if course.program_id in self.study_programs_courses:
                 self.study_programs_courses[course.program_id].append(course.course_id)
-                for group_id in self.grouped_groups[course.program_id]:
-                    self.study_programs_courses[course.program_id].append(course.course_id + group_id[-2:])
             else:
                 self.study_programs_courses[course.program_id] = [course.course_id]
-                for group_id in self.grouped_groups[course.program_id]:
-                    self.study_programs_courses[course.program_id].append(course.course_id + group_id[-2:])
-        
+            
+            if course.seminar_laboratory == 'S':
+                append_course(self.study_programs_courses[course.program_id], course.course_id, self.grouped_groups[course.program_id])
+            elif course.seminar_laboratory == 'L':
+                append_course(self.study_programs_courses[course.program_id], course.course_id, self.grouped_subgroups[course.program_id])
+
+        print("\n professors_courses:", self.professors_courses)
         print("\n study_programs_courses:", self.study_programs_courses)
         
     # Metode pentru algoritmul genetic (funcții de evaluare)
@@ -177,7 +226,7 @@ class UniversityTimetableData:
     # Calculez câte conflicte în orar am (dacă un grup de studenți/profesor au ore în acelaș timp)
     def evaluate_conflicting_schedule(self, individual):
         evaluation = 0
-        for _, courses in self.lecturers_courses.items():
+        for _, courses in self.professors_courses.items():
             rooms_list = [list(self.capacities.keys())[individual[list(self.lectures_seminars_data.keys()).index(course)]] for course in courses]
             if len(set(item[-3:] for item in rooms_list)) == len(rooms_list):
                 evaluation -= 1
@@ -208,15 +257,20 @@ class UniversityTimetableData:
         return None
 
     def get_professor_name(self, professor_id):
-        for lecturer in self.lecturers:
-            if lecturer.lecturer_id == professor_id:
-                return lecturer.lecturer_name
+        for professor in self.professors:
+            if professor.professor_id == professor_id:
+                return professor.professor_name
         return None
 
-    def get_professor_id(self, course_id):
-        for course in self.courses:
-            if course.course_id == course_id:
-                return course.lecturer_id
+    def get_professor_id(self, course_id, professor_num):
+        if professor_num == 1:
+            for course in self.courses:
+                if course.course_id == course_id:
+                    return course.professor1_id
+        elif professor_num == 2:
+            for course in self.courses:
+                if course.course_id == course_id:
+                    return course.professor2_id
         return None
 
     def get_course_name(self, course_id):
@@ -231,10 +285,10 @@ class UniversityTimetableData:
                 return course.short_name
         return None
 
-    def get_professor_id_by_using_name(self, lecturer_name):
-        for lecturer in self.lecturers:
-            if lecturer.lecturer_name == lecturer_name:
-                return lecturer.lecturer_id
+    def get_professor_id_by_using_name(self, professor_name):
+        for Professor in self.professors:
+            if Professor.professor_name == professor_name:
+                return Professor.professor_id
         return None
 
     def get_room_id(self, room_name):
