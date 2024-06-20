@@ -139,10 +139,10 @@ subgroups_structure_data = [
 ]
 
 rooms_data = [
-    ('R1', 'Room A', 70),
-    ('R2', 'Room B', 55),
-    ('R3', 'Room C', 40),
-    ('R4', 'Room D', 30),
+    ('R1', 'Sala A', 70),
+    ('R2', 'Sala B', 55),
+    ('R3', 'Sala C', 40),
+    ('R4', 'Sala D', 30),
     # ('R5', 'Room E', 60),
     # ('R6', 'Room F', 75),
     # ('R7', 'Room G', 60),

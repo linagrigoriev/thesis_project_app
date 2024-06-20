@@ -6,13 +6,26 @@ from thesis_work.LabelPlot import plot_lecturer, plot_room, plot_sg
 
 app = Flask(__name__)
 timetable_data = UniversityTimetableData('university_timetable.db')
-solution = CSP_algorithm(timetable_data).items()
+solution = None
+# solution = CSP_algorithm(timetable_data).items()
 # solution = genetic_algorithm(timetable_data)
 # print(solution)
 
 @app.route('/')
 def index():
     return 'Welcome to the Flask server!'
+
+@app.route('/CSP_agorithm', methods=['POST'])
+def set_solution_CSP():
+    global solution
+    solution = CSP_algorithm(timetable_data).items()  # Adjust this line as per your CSP algorithm
+    return jsonify({'message': 'CSP solution set'}), 200
+
+@app.route('/genetic_agorithm', methods=['POST'])
+def set_solution_GA():
+    global solution
+    solution = genetic_algorithm(timetable_data)  # Adjust this line as per your GA algorithm
+    return jsonify({'message': 'GA solution set'}), 200
 
 @app.route('/professors')
 def get_professors():

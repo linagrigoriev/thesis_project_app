@@ -104,6 +104,7 @@ function TimetableComponent({ data }) {
 }
 
 function App() {
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState("");
   const [selectedOption, setSelectedOption] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const [professors, setProfessors] = useState([]);
@@ -111,6 +112,10 @@ function App() {
   const [rooms, setRooms] = useState([]);
   const [timetableData, setTimetableData] = useState(null);
   const [showTimetable, setShowTimetable] = useState(false);
+
+  const handleAlgorithmChange = (event) => {
+    setSelectedAlgorithm(event.target.value);
+  };
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
@@ -122,23 +127,23 @@ function App() {
     setSelectedId(event.target.value);
   };
 
-  useEffect(() => {
-    if (selectedOption === "2") {
-      fetch("/rooms")
-        .then((res) => res.json())
-        .then((data) => {
-          setRooms(data.rooms);
-        })
-        .catch((error) => {
-          console.error("Error fetching rooms:", error);
-        });
-    }
-  }, [selectedOption]);
+  // useEffect(() => {
+  //   if (selectedOption === "2") {
+  //     fetch("/rooms")
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         setRooms(data.rooms);
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching rooms:", error);
+  //       });
+  //   }
+  // }, [selectedOption]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!selectedId) {
-      alert("Please select an option");
+    if (!selectedId || !selectedAlgorithm) {
+      alert("Please select an option and an algorithm");
       return;
     }
 
@@ -242,6 +247,28 @@ function App() {
   };
 
   useEffect(() => {
+    if (selectedAlgorithm === "CSP") {
+      fetch("/CSP_agorithm", {method: 'POST',})
+        .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }})
+        .catch((error) => {
+          console.error("Error fetching CSP solution:", error);
+        });
+    } else if (selectedAlgorithm === "GA") {
+      fetch("/genetic_agorithm", {method: 'POST',})
+        .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }})
+        .catch((error) => {
+          console.error("Error fetching CSP solution:", error);
+        });
+    }
+  }, [selectedAlgorithm]);
+
+  useEffect(() => {
     if (selectedOption === "1") {
       fetch("/professors")
         .then((res) => res.json())
@@ -277,6 +304,16 @@ function App() {
       <header className="App-header">
         <h1>React and Flask</h1>
         <form onSubmit={handleSubmit}>
+          <div>
+            <label>
+              Choose an algorithm:
+              <select value={selectedAlgorithm} onChange={handleAlgorithmChange}>
+                <option value="">Select...</option>
+                <option value="CSP">CSP Algorithm</option>
+                <option value="GA">Genetic Algorithm</option>
+              </select>
+            </label>
+          </div>
           <div>
             <label>
               Choose an option:
