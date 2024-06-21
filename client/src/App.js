@@ -154,7 +154,7 @@ function App() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedId || !selectedAlgorithm) {
-      alert("Please select an option and an algorithm");
+      alert("Vă rugăm să selectați o opțiune și un algoritm");
       return;
     }
 
@@ -165,7 +165,7 @@ function App() {
           `/generate_plot_room?choice_id=${selectedId}`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch timetable data");
+          throw new Error("Nu s-au putut prelua datele orarului");
         }
         data_json = await response.json();
       } else if (selectedOption === "1") {
@@ -173,7 +173,7 @@ function App() {
           `/generate_plot_professor?choice_id=${selectedId}`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch timetable data");
+          throw new Error("Nu s-au putut prelua datele orarului");
         }
         data_json = await response.json();
       } else if (selectedOption === "0") {
@@ -181,13 +181,13 @@ function App() {
           `/generate_plot_study_program?choice_id=${selectedId}`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch timetable data");
+          throw new Error("Nu s-au putut prelua datele orarului");
         }
         data_json = await response.json();
       }
 
       if (!Array.isArray(data_json)) {
-        throw new Error("Data is not in the expected format");
+        throw new Error("Datele nu sunt în formatul așteptat");
       }
 
       const groupNames = ["0", "1", "2", "3"];
@@ -257,7 +257,7 @@ function App() {
       setTimetableData(timetable);
       setShowTimetable(true);
     } catch (error) {
-      console.error("Error:", error.message);
+      console.error("Eroare:", error.message);
     }
   };
 
@@ -266,19 +266,19 @@ function App() {
       fetch("/CSP_agorithm", {method: 'POST',})
         .then(response => {
           if (!response.ok) {
-              throw new Error('Network response was not ok');
+              throw new Error('Răspunsul rețelei nu a fost ok');
           }})
         .catch((error) => {
-          console.error("Error fetching CSP solution:", error);
+          console.error("Eroare la preluarea soluției CSP:", error);
         });
     } else if (selectedAlgorithm === "GA") {
       fetch("/genetic_agorithm", {method: 'POST',})
         .then(response => {
           if (!response.ok) {
-              throw new Error('Network response was not ok');
+              throw new Error('Răspunsul rețelei nu a fost ok');
           }})
         .catch((error) => {
-          console.error("Error fetching CSP solution:", error);
+          console.error("Eroare la preluarea soluției GA:", error);
         });
     }
   }, [selectedAlgorithm]);
@@ -291,7 +291,7 @@ function App() {
           setProfessors(data.professors);
         })
         .catch((error) => {
-          console.error("Error fetching professors:", error);
+          console.error("Eroare la preluarea profesorilor:", error);
         });
     } else if (selectedOption === "0") {
       fetch("/study_programs")
@@ -300,7 +300,7 @@ function App() {
           setStudyPrograms(data.study_programs);
         })
         .catch((error) => {
-          console.error("Error fetching study programs:", error);
+          console.error("Eroare la preluarea specializărilor:", error);
         });
     } else if (selectedOption === "2") {
       fetch("/rooms")
@@ -309,7 +309,7 @@ function App() {
           setRooms(data.rooms);
         })
         .catch((error) => {
-          console.error("Error fetching rooms:", error);
+          console.error("Eroare la preluarea sălilor:", error);
         });
     }
   }, [selectedOption]);
@@ -317,34 +317,34 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>React and Flask</h1>
+        <h1>Generarea Orarului Universitar</h1>
         <form onSubmit={handleSubmit}>
           <div>
             <label>
-              Choose an algorithm:
+              Alegeți algoritmul:
               <select value={selectedAlgorithm} onChange={handleAlgorithmChange}>
-                <option value="">Select...</option>
-                <option value="CSP">CSP Algorithm</option>
-                <option value="GA">Genetic Algorithm</option>
+                <option value="">Selectați...</option>
+                <option value="CSP">Algoritmul CSP</option>
+                <option value="GA">Algoritmul Genetic</option>
               </select>
             </label>
           </div>
           <div>
             <label>
-              Choose an option:
+              Ajegeți o opțiune:
               <select value={selectedOption} onChange={handleOptionChange}>
-                <option value="">Select...</option>
-                <option value="1">Professor</option>
-                <option value="0">Study Program</option>
-                <option value="2">Room</option>
+                <option value="">Selectați...</option>
+                <option value="1">Profesor</option>
+                <option value="0">Specializare</option>
+                <option value="2">Sală</option>
               </select>
             </label>
           </div>
           {selectedOption === "1" && (
             <div>
-              <label>Select Professor:</label>
+              <label>Alegeți Profesorul:</label>
               <select value={selectedId} onChange={handleIdChange}>
-                <option value="">Select...</option>
+                <option value="">Selectați...</option>
                 {professors.map((professor, index) => (
                   <option key={index} value={professor}>
                     {professor}
@@ -355,9 +355,9 @@ function App() {
           )}
           {selectedOption === "0" && (
             <div>
-              <label>Select Study Program:</label>
+              <label>Alegeți Specializarea:</label>
               <select value={selectedId} onChange={handleIdChange}>
-                <option value="">Select...</option>
+                <option value="">Selectați...</option>
                 {studyPrograms.map((study_program, index) => (
                   <option key={index} value={study_program}>
                     {study_program}
@@ -368,9 +368,9 @@ function App() {
           )}
           {selectedOption === "2" && (
             <div>
-              <label>Select Room:</label>
+              <label>Alegeți Sala:</label>
               <select value={selectedId} onChange={handleIdChange}>
-                <option value="">Select...</option>
+                <option value="">Selectați...</option>
                 {rooms.map((room, index) => (
                   <option key={index} value={room}>
                     {room}
@@ -379,7 +379,7 @@ function App() {
               </select>
             </div>
           )}
-          <button type="submit">Generate Timetable</button>
+          <button type="submit">Generarea Orarului</button>
         </form>
         {showTimetable && timetableData && (
           <TimetableComponent data={timetableData} />
