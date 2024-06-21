@@ -105,7 +105,7 @@
   top: 10px; /* Adjust as needed */
   left: calc(100% - 30px);
   width: 200px;
-  height: 200px;
+  height: wrap-content;
   padding: 5px;
   background-color: white;
   border: 1px solid #ccc;

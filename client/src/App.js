@@ -53,7 +53,7 @@ function TimetableComponent({ data }) {
                             backgroundColor: slot.color,
                             position: "relative",
                             width: "150px",
-                            height: "100px",
+                            height: "wrap-content",
                           }}
                           onMouseEnter={() =>
                             handleSlotHover(dayIndex, slotIndex, slot.label)
@@ -63,12 +63,12 @@ function TimetableComponent({ data }) {
                           {slot.label && (
                             <>
                               {slot.group_subgroup_number === "0" ? (
-                                  `Curs, ${slot.label}`
+                                  `${slot.label}, curs, ${slot.room_name}, ${slot.study_program_name}`
                                 ) : (
                                   slot.seminar_laboratory === 'S' ? (
-                                    `Sem, ${slot.label}, Gr ${slot.group_subgroup_number}`
+                                    `${slot.label}, sem, ${slot.room_name}, ${slot.study_program_name}, gr ${slot.group_subgroup_number}`
                                   ) : (
-                                    `Lab, ${slot.label}, Sem ${slot.group_subgroup_number}`
+                                    `${slot.label}, lab, ${slot.room_name}, ${slot.study_program_name}, sem ${slot.group_subgroup_number}`
                                   )
                                 )}
                               {hoveredSlot &&
@@ -77,12 +77,36 @@ function TimetableComponent({ data }) {
                                 hoveredSlot.label === slot.label && (
                                   <div className="additional-info">
                                     {slot.group_subgroup_number === "0" ? (
-                                      `Curs, ${slot.course_name}, ${slot.professor}`
+                                      `Curs: ${slot.course_name}, Cadrul didactic: ${slot.professor}, 
+                                      Specializare: ${slot.study_program_name}`
+                                      .split(', ')
+                                      .map((line, index) => (
+                                        <React.Fragment key={index}>
+                                          {line}
+                                          <br />
+                                        </React.Fragment>
+                                      ))
                                     ) : (
                                       slot.seminar_laboratory === 'S' ? (
-                                        `Seminar, ${slot.course_name}, ${slot.professor}, Grupa ${slot.group_subgroup_number}`
+                                        `Seminar: ${slot.course_name}, Cadrul didactic: ${slot.professor}, 
+                                        Specializare: ${slot.study_program_name}, Grupa: ${slot.group_subgroup_number}`
+                                        .split(', ')
+                                        .map((line, index) => (
+                                        <React.Fragment key={index}>
+                                          {line}
+                                          <br />
+                                        </React.Fragment>
+                                      ))
                                       ) : (
-                                        `Laborator, ${slot.course_name}, ${slot.professor}, Semigrupa ${slot.group_subgroup_number}`
+                                        `Laborator:, ${slot.course_name}, ${slot.professor}, 
+                                        Specializare: ${slot.study_program_name}, Semigrupa: ${slot.group_subgroup_number}`
+                                        .split(', ')
+                                        .map((line, index) => (
+                                        <React.Fragment key={index}>
+                                          {line}
+                                          <br />
+                                        </React.Fragment>
+                                      ))
                                       )
                                     )}
                                   </div>
@@ -126,19 +150,6 @@ function App() {
   const handleIdChange = (event) => {
     setSelectedId(event.target.value);
   };
-
-  // useEffect(() => {
-  //   if (selectedOption === "2") {
-  //     fetch("/rooms")
-  //       .then((res) => res.json())
-  //       .then((data) => {
-  //         setRooms(data.rooms);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching rooms:", error);
-  //       });
-  //   }
-  // }, [selectedOption]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -225,6 +236,8 @@ function App() {
                 const shortName = solution.short_name;
                 const color = groupColors[groupSubgroupNumber];
                 const seminarLaboratory = solution.seminar_laboratory;
+                const roomName = solution.room_name;
+                const studyProgramName = solution.study_program_name;
                 return {
                   label: shortName,
                   course_name: courseName,
@@ -232,6 +245,8 @@ function App() {
                   group_subgroup_number: groupSubgroupNumber,
                   color: color,
                   seminar_laboratory: seminarLaboratory,
+                  room_name: roomName,
+                  study_program_name: studyProgramName,
                 };
               });
             }

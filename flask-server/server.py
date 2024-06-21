@@ -7,9 +7,6 @@ from thesis_work.LabelPlot import plot_lecturer, plot_room, plot_sg
 app = Flask(__name__)
 timetable_data = UniversityTimetableData('university_timetable.db')
 solution = None
-# solution = CSP_algorithm(timetable_data).items()
-# solution = genetic_algorithm(timetable_data)
-# print(solution)
 
 @app.route('/')
 def index():
@@ -18,19 +15,18 @@ def index():
 @app.route('/CSP_agorithm', methods=['POST'])
 def set_solution_CSP():
     global solution
-    solution = CSP_algorithm(timetable_data).items()  # Adjust this line as per your CSP algorithm
+    solution = CSP_algorithm(timetable_data).items() 
     return jsonify({'message': 'CSP solution set'}), 200
 
 @app.route('/genetic_agorithm', methods=['POST'])
 def set_solution_GA():
     global solution
-    solution = genetic_algorithm(timetable_data)  # Adjust this line as per your GA algorithm
+    solution = genetic_algorithm(timetable_data)
     return jsonify({'message': 'GA solution set'}), 200
 
 @app.route('/professors')
 def get_professors():
     try:
-        # Assuming professors are stored in some data structure accessible in timetable_data
         professors = [professor.professor_name for professor in timetable_data.professors]
         return jsonify({'professors': professors})
     except Exception as e:
@@ -68,7 +64,6 @@ def generate_plot_professor():
         choice_name = request.args.get('choice_id')
         choice_id = timetable_data.get_professor_id_by_using_name(choice_name)
         plot_data = plot_lecturer(timetable_data, solution, choice_id)
-        # print()
         return plot_data
     except Exception as e:
         return jsonify({'error': str(e)}), 500

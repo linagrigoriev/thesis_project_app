@@ -147,7 +147,7 @@ class UniversityTimetableData:
                 for subgroup_id in self.grouped_subgroups.get(course.program_id, []):
                     program_num = next((subgroup.subgroup_num for subgroup in self.subgroups_structure if subgroup.subgroup_id == subgroup_id), None)
                     self.lectures_seminars_data[course.course_id + subgroup_id[-2:]] = program_num
-        print("\n lectures_seminars_data:", self.lectures_seminars_data)
+        # print("\n lectures_seminars_data:", self.lectures_seminars_data)
 
     # Crearea unui dicționar care genrează id-uri pentru a vedea câte slot-uri dispoibile în total avem
     # Keia este compusă din id-ul camerei + id-ul din tabela time_slots + id-ul zilei
@@ -202,8 +202,8 @@ class UniversityTimetableData:
             elif course.seminar_laboratory == 'L':
                 append_course(self.study_programs_courses[course.program_id], course.course_id, self.grouped_subgroups[course.program_id])
 
-        print("\n professors_courses:", self.professors_courses)
-        print("\n study_programs_courses:", self.study_programs_courses)
+        # print("\n professors_courses:", self.professors_courses)
+        # print("\n study_programs_courses:", self.study_programs_courses)
         
     # Metode pentru algoritmul genetic (funcții de evaluare)
 
@@ -225,15 +225,23 @@ class UniversityTimetableData:
 
     # Calculez câte conflicte în orar am (dacă un grup de studenți/profesor au ore în acelaș timp)
     def evaluate_conflicting_schedule(self, individual):
+        # Inițializare
         evaluation = 0
+        # self.professors_courses.items() iterează peste fiecare profesor și lista lui de cursuri
         for _, courses in self.professors_courses.items():
+            # rooms_list este construit prin maparea fiecărui curs în camera atribuită, utilizând orarul individual
             rooms_list = [list(self.capacities.keys())[individual[list(self.lectures_seminars_data.keys()).index(course)]] for course in courses]
-            if len(set(item[-3:] for item in rooms_list)) == len(rooms_list):
-                evaluation -= 1
+            # item[-3:] extrage ultimele trei caractere, care reprezintă intervalul de timp și ziua
+            # set(item[-3:] pentru element în rooms_list) asigură că nu există combinaţii duplicat timeslot şi day (indicând fără conflicte)
+            # set este folosit pentru a colecta combinaţii unice de intervale orare şi zile din rooms_list
+            difference = len(rooms_list) - len(set(item[-3:] for item in rooms_list))
+            if difference != 0:
+                evaluation -= difference
         for _, courses in self.study_programs_courses.items():
             rooms_list = [list(self.capacities.keys())[individual[list(self.lectures_seminars_data.keys()).index(course)]] for course in courses]
-            if len(set(item[-3:] for item in rooms_list)) == len(rooms_list):
-                evaluation -= 1
+            difference = len(rooms_list) - len(set(item[-3:] for item in rooms_list))
+            if difference != 0:
+                evaluation -= difference
         return evaluation
 
     def evaluate(self, individual):
@@ -242,13 +250,13 @@ class UniversityTimetableData:
         conflicting_schedule_evaluation = self.evaluate_conflicting_schedule(individual)
         return capacity_evaluation + uniqueness_evaluation + conflicting_schedule_evaluation,
 
-    # Metode pentru generarea graficului
+    # Metode pentru generarea informației pentru grafic
 
     def get_time(self, timeslot_id):
         for timeslot in self.timeslots:
             if timeslot.slot_id == timeslot_id:
                 return (timeslot.start_time, timeslot.end_time)
-        return None  # Return None if timeslot_id is not found
+        return None
 
     def get_day(self, day_id):
         for day in self.days:
