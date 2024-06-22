@@ -244,11 +244,36 @@ class UniversityTimetableData:
                 evaluation -= difference
         return evaluation
 
+    def evaluate_professor_courses_per_day(self, individual):
+        evaluation = 0
+        for _, courses in self.professors_courses.items():
+            daily_courses_count = {}
+            for course in courses:
+                course_index = list(self.lectures_seminars_data.keys()).index(course)
+                day = list(self.capacities.keys())[individual[course_index]][-1]
+                if day in daily_courses_count:
+                    daily_courses_count[day] += 1
+                else:
+                    daily_courses_count[day] = 1
+            
+            for day_count in daily_courses_count.values():
+                if day_count > 4:
+                    evaluation -= (day_count - 4)
+        # print("same_professor_courses_per_day: ", evaluation)
+        return evaluation
+
     def evaluate(self, individual):
-        capacity_evaluation = self.evaluate_capacity(individual)
-        uniqueness_evaluation = self.evaluate_uniqueness(individual)
-        conflicting_schedule_evaluation = self.evaluate_conflicting_schedule(individual)
-        return capacity_evaluation + uniqueness_evaluation + conflicting_schedule_evaluation,
+        weights = {
+            'capacity': 2,
+            'uniqueness': 2,
+            'conflict': 2,
+            'professor_courses_per_day': 1
+        }
+        capacity_evaluation = self.evaluate_capacity(individual) * weights['capacity']
+        uniqueness_evaluation = self.evaluate_uniqueness(individual) * weights['uniqueness']
+        conflicting_schedule_evaluation = self.evaluate_conflicting_schedule(individual) * weights['conflict']
+        professor_courses_per_day_evaluation = self.evaluate_professor_courses_per_day(individual) * weights['professor_courses_per_day']
+        return capacity_evaluation + uniqueness_evaluation + conflicting_schedule_evaluation + professor_courses_per_day_evaluation ,
 
     # Metode pentru generarea informației pentru grafic
 
