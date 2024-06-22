@@ -190,7 +190,7 @@ function App() {
         throw new Error("Datele nu sunt în formatul așteptat");
       }
 
-      const groupNames = ["0", "1", "2", "3"];
+      const groupNames = ["0", "S1", "S2", "S3", "S4", "S5", "L1", "L2", "L3", "L4", "L5"];
 
       // Create a dictionary to store colors for each group number
       const groupColors = {};
@@ -234,7 +234,7 @@ function App() {
                 const lecturerName = solution.professor_name;
                 const groupSubgroupNumber = solution.group_subgroup_number;
                 const shortName = solution.short_name;
-                const color = groupColors[groupSubgroupNumber];
+                const color = groupColors[groupSubgroupNumber === "0" ? "0" : solution.seminar_laboratory+groupSubgroupNumber];
                 const seminarLaboratory = solution.seminar_laboratory;
                 const roomName = solution.room_name;
                 const studyProgramName = solution.study_program_name;

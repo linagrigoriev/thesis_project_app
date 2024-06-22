@@ -1,3 +1,4 @@
+import random
 import sqlite3
 
 class DataBase:
@@ -78,7 +79,9 @@ class UniversityTimetableData:
         self.capacities = {}
         self.fetch_and_initialize_data()
         self.grouped_groups = self.group_groups_by_study_program()
+        # print("\n grouped_groups:", self.grouped_groups)
         self.grouped_subgroups = self.group_subgroups_by_study_program()
+        # print("\n grouped_subgroups:", self.grouped_subgroups)
         self.group_courses_by_professor_and_study_program()
         self.generate_lectures_seminars_data()
         self.generate_capacities()
@@ -158,6 +161,10 @@ class UniversityTimetableData:
                 for room in self.rooms:
                     variable = f"{room.room_id}_{slot.slot_id}_{day.day_id}"
                     self.capacities[variable] = room.room_capacity
+        # În caz că vrem să primim un orar mai dispersat folosind metoda CSP
+        items = list(self.capacities.items())
+        random.shuffle(items)
+        self.capacities = dict(items)
         # print("\n capacities:", self.capacities)
 
     # Gruparea cursurilor și seminarelor după profesori și specializări / grupe de seminare
@@ -262,17 +269,47 @@ class UniversityTimetableData:
         # print("same_professor_courses_per_day: ", evaluation)
         return evaluation
 
+    def evaluate_study_program_courses_per_day(self, individual):
+        evaluation = 0
+        daily_courses_count = {}
+        for program_id, courses in self.study_programs_courses.items():
+            num_groups = len(self.grouped_groups[program_id])
+            try: 
+                num_subgroups = len(self.grouped_subgroups[program_id])
+            except:
+                num_subgroups = 1
+            for course in courses:
+                timeslot = list(self.capacities.keys())[individual[list(self.lectures_seminars_data.keys()).index(course)]]
+                day = timeslot[-1]
+                if day not in daily_courses_count:
+                    daily_courses_count[day] = 0
+                if course[-2] == 'S':
+                    daily_courses_count[day] += 1 / num_groups
+                elif course[-2] == 'L':
+                    daily_courses_count[day] += 1 / num_subgroups
+                else:
+                    daily_courses_count[day] += 1
+            
+            # print(daily_courses_count)
+            for day_count in daily_courses_count.values():
+                if day_count > 4:
+                    evaluation -= (day_count - 4)
+        # print(evaluation)
+        return int(evaluation)
+
     def evaluate(self, individual):
         weights = {
             'capacity': 2,
             'uniqueness': 2,
             'conflict': 2,
-            'professor_courses_per_day': 1
+            'professor_courses_per_day': 1,
+            'study_program_courses_per_day': 1
         }
         capacity_evaluation = self.evaluate_capacity(individual) * weights['capacity']
         uniqueness_evaluation = self.evaluate_uniqueness(individual) * weights['uniqueness']
         conflicting_schedule_evaluation = self.evaluate_conflicting_schedule(individual) * weights['conflict']
         professor_courses_per_day_evaluation = self.evaluate_professor_courses_per_day(individual) * weights['professor_courses_per_day']
+        study_program_courses_per_day_evaluation = self.evaluate_study_program_courses_per_day(individual) * weights['study_program_courses_per_day']
         return capacity_evaluation + uniqueness_evaluation + conflicting_schedule_evaluation + professor_courses_per_day_evaluation ,
 
     # Metode pentru generarea informației pentru grafic
