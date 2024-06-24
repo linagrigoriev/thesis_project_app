@@ -190,18 +190,11 @@ function App() {
         throw new Error("Datele nu sunt în formatul așteptat");
       }
 
-      const groupNames = ["0", "S1", "S2", "S3", "S4", "S5", "L1", "L2", "L3", "L4", "L5"];
-
-      // Create a dictionary to store colors for each group number
-      const groupColors = {};
-      groupNames.forEach((groupName) => {
-        const randomColor = `rgba(${Math.floor(
-          Math.random() * 256
-        )}, ${Math.floor(Math.random() * 256)}, ${Math.floor(
-          Math.random() * 256
-        )}, 0.5)`;
-        groupColors[groupName] = randomColor;
-      });
+      const groupColors = {
+        "0": "#2C7DA0",
+        "L": "#01497C",
+        "S": "#012A4A"
+      };
 
       const days = [
         { id: "1", day_name: "Luni" },
@@ -234,7 +227,7 @@ function App() {
                 const lecturerName = solution.professor_name;
                 const groupSubgroupNumber = solution.group_subgroup_number;
                 const shortName = solution.short_name;
-                const color = groupColors[groupSubgroupNumber === "0" ? "0" : solution.seminar_laboratory+groupSubgroupNumber];
+                const color = groupColors[groupSubgroupNumber === "0" ? "0" : solution.seminar_laboratory];
                 const seminarLaboratory = solution.seminar_laboratory;
                 const roomName = solution.room_name;
                 const studyProgramName = solution.study_program_name;

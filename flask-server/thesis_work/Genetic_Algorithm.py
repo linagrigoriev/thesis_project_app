@@ -7,7 +7,7 @@ def genetic_algorithm(self):
     POPULATION_SIZE = 100
     CROSSOVER_PROBABILITY = 0.8
     MUTATION_PROBABILITY = 0.2
-    NUM_GENERATIONS = 600
+    NUM_GENERATIONS = 200
 
     # DEAP creator
     creator.create("FitnessMax", base.Fitness, weights=(1.0,))

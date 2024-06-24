@@ -138,15 +138,16 @@ class UniversityTimetableData:
     def generate_lectures_seminars_data(self):
         for course in self.courses:
             # Extragerea numărului de studenți pentru ora respectivă 
-            program_num = next((program.program_num for program in self.study_programs if program.program_id == course.program_id), None)
-            self.lectures_seminars_data[course.course_id] = program_num
+            if (course.seminar_laboratory[0] != 'O'):
+                program_num = next((program.program_num for program in self.study_programs if program.program_id == course.program_id), None)
+                self.lectures_seminars_data[course.course_id] = program_num
             # După ce am parcurs cursul, adaugăm informații despre seminare în dicționar
             # Keia este construită din course_id și ultimele 2 elemente din codul grupei de seminar (ca de exemplu, 'G1')
-            if course.seminar_laboratory == 'S':
+            if course.seminar_laboratory[-1] == 'S':
                 for group_id in self.grouped_groups.get(course.program_id, []):
                     program_num = next((group.group_num for group in self.groups_structure if group.group_id == group_id), None)
                     self.lectures_seminars_data[course.course_id + group_id[-2:]] = program_num
-            elif course.seminar_laboratory == 'L':
+            elif course.seminar_laboratory[-1] == 'L':
                 for subgroup_id in self.grouped_subgroups.get(course.program_id, []):
                     program_num = next((subgroup.subgroup_num for subgroup in self.subgroups_structure if subgroup.subgroup_id == subgroup_id), None)
                     self.lectures_seminars_data[course.course_id + subgroup_id[-2:]] = program_num
@@ -182,31 +183,33 @@ class UniversityTimetableData:
                 ]
         
         def handle_seminar_laboratory(course, professor_id):
-            if course.seminar_laboratory == 'S':
+            if course.seminar_laboratory[-1] == 'S':
                 handle_professor_courses(professor_id, course.course_id, self.grouped_groups[course.program_id])
-            elif course.seminar_laboratory == 'L':
+            elif course.seminar_laboratory[-1] == 'L':
                 handle_professor_courses(professor_id, course.course_id, self.grouped_subgroups[course.program_id])
         
         for course in self.courses:
             # Handle lecturer1 courses
-            if course.professor1_id in self.professors_courses:
-                self.professors_courses[course.professor1_id].append(course.course_id)
-            else:
-                self.professors_courses[course.professor1_id] = [course.course_id]
+            if (course.seminar_laboratory[0] != 'O'):
+                if course.professor1_id in self.professors_courses:
+                    self.professors_courses[course.professor1_id].append(course.course_id)
+                else:
+                    self.professors_courses[course.professor1_id] = [course.course_id]
             
             # Handle lecturer2 courses if any
             if course.professor2_id:
                 handle_seminar_laboratory(course, course.professor2_id)
 
             # Handle study program courses
-            if course.program_id in self.study_programs_courses:
-                self.study_programs_courses[course.program_id].append(course.course_id)
-            else:
-                self.study_programs_courses[course.program_id] = [course.course_id]
+            if (course.seminar_laboratory[0] != 'O'):
+                if course.program_id in self.study_programs_courses:
+                    self.study_programs_courses[course.program_id].append(course.course_id)
+                else:
+                    self.study_programs_courses[course.program_id] = [course.course_id]
             
-            if course.seminar_laboratory == 'S':
+            if course.seminar_laboratory[-1] == 'S':
                 append_course(self.study_programs_courses[course.program_id], course.course_id, self.grouped_groups[course.program_id])
-            elif course.seminar_laboratory == 'L':
+            elif course.seminar_laboratory[-1] == 'L':
                 append_course(self.study_programs_courses[course.program_id], course.course_id, self.grouped_subgroups[course.program_id])
 
         # print("\n professors_courses:", self.professors_courses)
@@ -310,7 +313,7 @@ class UniversityTimetableData:
         conflicting_schedule_evaluation = self.evaluate_conflicting_schedule(individual) * weights['conflict']
         professor_courses_per_day_evaluation = self.evaluate_professor_courses_per_day(individual) * weights['professor_courses_per_day']
         study_program_courses_per_day_evaluation = self.evaluate_study_program_courses_per_day(individual) * weights['study_program_courses_per_day']
-        return capacity_evaluation + uniqueness_evaluation + conflicting_schedule_evaluation + professor_courses_per_day_evaluation ,
+        return capacity_evaluation + uniqueness_evaluation + conflicting_schedule_evaluation + professor_courses_per_day_evaluation + study_program_courses_per_day_evaluation ,
 
     # Metode pentru generarea informației pentru grafic
 
