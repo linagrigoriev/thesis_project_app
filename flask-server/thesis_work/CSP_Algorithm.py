@@ -1,5 +1,4 @@
 # from UniversityTimetableData import UniversityTimetableData
-import sqlite3
 from constraint import Problem, AllDifferentConstraint
 
 # Constrângere: numărul studenților <= numărul locurilor disponibile în sală

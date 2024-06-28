@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import sqlite3
 # from UniversityTimetableData import UniversityTimetableData
 # from CSP_Algorithm import CSP_algorithm
 # from Genetic_Algorithm import genetic_algorithm
@@ -38,7 +36,7 @@ def print_answer_data(data_list):
 def plot_lecturer(timetable_data, solution, choice_id):
     try:
         courses_list_for_professor = timetable_data.professors_courses.get(choice_id, [])
-        print(courses_list_for_professor)
+        # print(courses_list_for_professor)
         lecturer_data = []
 
         for course_seminar_id, slot_id in solution:

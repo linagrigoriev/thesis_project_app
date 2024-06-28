@@ -133,16 +133,16 @@ class UniversityTimetableData:
                 grouped_subgroups[subgroup.program_id] = [subgroup.subgroup_id]
         return grouped_subgroups
 
-    # Generarea dicționarului pentru a vedea câte ore de cursuri și seminar avem de programat, id-ul fiind keie
+    # Generarea dicționarului pentru a vedea câte ore de cursuri și seminar/laborator avem de programat, id-ul fiind keie
     # Valoarea pentru fiecare keie este numărul studenților
     def generate_lectures_seminars_data(self):
         for course in self.courses:
-            # Extragerea numărului de studenți pentru ora respectivă 
             if (course.seminar_laboratory[0] != 'O'):
+                # Extragerea numărului de studenți pentru ora respectivă 
                 program_num = next((program.program_num for program in self.study_programs if program.program_id == course.program_id), None)
                 self.lectures_seminars_data[course.course_id] = program_num
             # După ce am parcurs cursul, adaugăm informații despre seminare în dicționar
-            # Keia este construită din course_id și ultimele 2 elemente din codul grupei de seminar (ca de exemplu, 'G1')
+            # Keia este construită din course_id și ultimele 2 elemente din codul grupei/semigrupei (ca de exemplu, 'S1')
             if course.seminar_laboratory[-1] == 'S':
                 for group_id in self.grouped_groups.get(course.program_id, []):
                     program_num = next((group.group_num for group in self.groups_structure if group.group_id == group_id), None)
@@ -151,7 +151,7 @@ class UniversityTimetableData:
                 for subgroup_id in self.grouped_subgroups.get(course.program_id, []):
                     program_num = next((subgroup.subgroup_num for subgroup in self.subgroups_structure if subgroup.subgroup_id == subgroup_id), None)
                     self.lectures_seminars_data[course.course_id + subgroup_id[-2:]] = program_num
-        # print("\n lectures_seminars_data:", self.lectures_seminars_data)
+        # print("\n lectures_seminars_data:", self.lectures_seminars_data.keys())
 
     # Crearea unui dicționar care genrează id-uri pentru a vedea câte slot-uri dispoibile în total avem
     # Keia este compusă din id-ul camerei + id-ul din tabela time_slots + id-ul zilei
@@ -166,7 +166,7 @@ class UniversityTimetableData:
         items = list(self.capacities.items())
         random.shuffle(items)
         self.capacities = dict(items)
-        # print("\n capacities:", self.capacities)
+        print("\n capacities:", self.capacities)
 
     # Gruparea cursurilor și seminarelor după profesori și specializări / grupe de seminare
     def group_courses_by_professor_and_study_program(self):

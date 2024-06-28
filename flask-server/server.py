@@ -12,17 +12,17 @@ solution = None
 def index():
     return 'Welcome to the Flask server!'
 
-@app.route('/CSP_agorithm', methods=['POST'])
+@app.route('/CSP_algorithm', methods=['POST'])
 def set_solution_CSP():
     global solution
     solution = CSP_algorithm(timetable_data).items() 
-    return jsonify({'message': 'CSP solution set'}), 200
+    return jsonify({'message': 'Soluția CSP primită'}), 200
 
-@app.route('/genetic_agorithm', methods=['POST'])
+@app.route('/genetic_algorithm', methods=['POST'])
 def set_solution_GA():
     global solution
     solution = genetic_algorithm(timetable_data)
-    return jsonify({'message': 'GA solution set'}), 200
+    return jsonify({'message': 'Soluția GA primită'}), 200
 
 @app.route('/professors')
 def get_professors():

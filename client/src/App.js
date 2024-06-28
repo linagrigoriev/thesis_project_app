@@ -62,53 +62,45 @@ function TimetableComponent({ data }) {
                         >
                           {slot.label && (
                             <>
-                              {slot.group_subgroup_number === "0" ? (
-                                  `${slot.label}, curs, ${slot.room_name}, ${slot.study_program_name}`
-                                ) : (
-                                  slot.seminar_laboratory === 'S' ? (
-                                    `${slot.label}, sem, ${slot.room_name}, ${slot.study_program_name}, gr ${slot.group_subgroup_number}`
-                                  ) : (
-                                    `${slot.label}, lab, ${slot.room_name}, ${slot.study_program_name}, sem ${slot.group_subgroup_number}`
-                                  )
-                                )}
+                              {slot.group_subgroup_number === "0"
+                                ? `${slot.label}, curs, ${slot.room_name}, ${slot.study_program_name}`
+                                : slot.seminar_laboratory === "S"
+                                ? `${slot.label}, sem, ${slot.room_name}, ${slot.study_program_name}, gr ${slot.group_subgroup_number}`
+                                : `${slot.label}, lab, ${slot.room_name}, ${slot.study_program_name}, sem ${slot.group_subgroup_number}`}
                               {hoveredSlot &&
                                 hoveredSlot.dayIndex === dayIndex &&
                                 hoveredSlot.slotIndex === slotIndex &&
                                 hoveredSlot.label === slot.label && (
                                   <div className="additional-info">
-                                    {slot.group_subgroup_number === "0" ? (
-                                      `Curs: ${slot.course_name}, Cadrul didactic: ${slot.professor}, 
+                                    {slot.group_subgroup_number === "0"
+                                      ? `Curs: ${slot.course_name}, Cadrul didactic: ${slot.professor}, 
                                       Specializare: ${slot.study_program_name}`
-                                      .split(', ')
-                                      .map((line, index) => (
-                                        <React.Fragment key={index}>
-                                          {line}
-                                          <br />
-                                        </React.Fragment>
-                                      ))
-                                    ) : (
-                                      slot.seminar_laboratory === 'S' ? (
-                                        `Seminar: ${slot.course_name}, Cadrul didactic: ${slot.professor}, 
+                                          .split(", ")
+                                          .map((line, index) => (
+                                            <React.Fragment key={index}>
+                                              {line}
+                                              <br />
+                                            </React.Fragment>
+                                          ))
+                                      : slot.seminar_laboratory === "S"
+                                      ? `Seminar: ${slot.course_name}, Cadrul didactic: ${slot.professor}, 
                                         Specializare: ${slot.study_program_name}, Grupa: ${slot.group_subgroup_number}`
-                                        .split(', ')
-                                        .map((line, index) => (
-                                        <React.Fragment key={index}>
-                                          {line}
-                                          <br />
-                                        </React.Fragment>
-                                      ))
-                                      ) : (
-                                        `Laborator:, ${slot.course_name}, ${slot.professor}, 
+                                          .split(", ")
+                                          .map((line, index) => (
+                                            <React.Fragment key={index}>
+                                              {line}
+                                              <br />
+                                            </React.Fragment>
+                                          ))
+                                      : `Laborator:, ${slot.course_name}, ${slot.professor}, 
                                         Specializare: ${slot.study_program_name}, Semigrupa: ${slot.group_subgroup_number}`
-                                        .split(', ')
-                                        .map((line, index) => (
-                                        <React.Fragment key={index}>
-                                          {line}
-                                          <br />
-                                        </React.Fragment>
-                                      ))
-                                      )
-                                    )}
+                                          .split(", ")
+                                          .map((line, index) => (
+                                            <React.Fragment key={index}>
+                                              {line}
+                                              <br />
+                                            </React.Fragment>
+                                          ))}
                                   </div>
                                 )}
                             </>
@@ -191,9 +183,9 @@ function App() {
       }
 
       const groupColors = {
-        "0": "#2C7DA0",
-        "L": "#01497C",
-        "S": "#012A4A"
+        0: "#2C7DA0",
+        L: "#01497C",
+        S: "#012A4A",
       };
 
       const days = [
@@ -227,7 +219,12 @@ function App() {
                 const lecturerName = solution.professor_name;
                 const groupSubgroupNumber = solution.group_subgroup_number;
                 const shortName = solution.short_name;
-                const color = groupColors[groupSubgroupNumber === "0" ? "0" : solution.seminar_laboratory];
+                const color =
+                  groupColors[
+                    groupSubgroupNumber === "0"
+                      ? "0"
+                      : solution.seminar_laboratory
+                  ];
                 const seminarLaboratory = solution.seminar_laboratory;
                 const roomName = solution.room_name;
                 const studyProgramName = solution.study_program_name;
@@ -256,20 +253,22 @@ function App() {
 
   useEffect(() => {
     if (selectedAlgorithm === "CSP") {
-      fetch("/CSP_agorithm", {method: 'POST',})
-        .then(response => {
+      fetch("/CSP_algorithm", { method: "POST" })
+        .then((response) => {
           if (!response.ok) {
-              throw new Error('Răspunsul rețelei nu a fost ok');
-          }})
+            throw new Error("Răspunsul rețelei nu a fost ok");
+          }
+        })
         .catch((error) => {
           console.error("Eroare la preluarea soluției CSP:", error);
         });
     } else if (selectedAlgorithm === "GA") {
-      fetch("/genetic_agorithm", {method: 'POST',})
-        .then(response => {
+      fetch("/genetic_algorithm", { method: "POST" })
+        .then((response) => {
           if (!response.ok) {
-              throw new Error('Răspunsul rețelei nu a fost ok');
-          }})
+            throw new Error("Răspunsul rețelei nu a fost ok");
+          }
+        })
         .catch((error) => {
           console.error("Eroare la preluarea soluției GA:", error);
         });
@@ -315,7 +314,10 @@ function App() {
           <div>
             <label>
               Alegeți algoritmul:
-              <select value={selectedAlgorithm} onChange={handleAlgorithmChange}>
+              <select
+                value={selectedAlgorithm}
+                onChange={handleAlgorithmChange}
+              >
                 <option value="">Selectați...</option>
                 <option value="CSP">Algoritmul CSP</option>
                 <option value="GA">Algoritmul Genetic</option>
