@@ -166,7 +166,7 @@ class UniversityTimetableData:
         items = list(self.capacities.items())
         random.shuffle(items)
         self.capacities = dict(items)
-        print("\n capacities:", self.capacities)
+        # print("\n capacities:", self.capacities)
 
     # Gruparea cursurilor și seminarelor după profesori și specializări / grupe de seminare
     def group_courses_by_professor_and_study_program(self):

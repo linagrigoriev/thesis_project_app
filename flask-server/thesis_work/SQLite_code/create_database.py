@@ -81,7 +81,8 @@ professors_data = [
     ('P29', 'lect. dr. Pașcu Paul'),
     ('P30', 'lect. dr. Cioban Gabriela-Liliana'),
     ('P31', 'as. dr. Danileț Alexandra'),
-    ('P32', 'drd. Anichiti Alexandru')
+    ('P32', 'drd. Anichiti Alexandru'),
+    ('P33', 'lect. dr. Bejinaru Ruxandra'),
 ]
 
 courses_data = [
@@ -127,6 +128,14 @@ courses_data = [
     ('FB225', 'Finanțe personale', 'P10', 'P10', 'S', 'FB2','Fin pers'),
     ('FB226', 'Finanţe corporative', 'P28', 'P28', 'S', 'FB2', 'Fin corp'),
     ('FB227', 'Educaţie fizică şi sport', 'P26', 'P26', 'OL', 'IE2', 'EDF')
+    # ('AF221', 'Tranzacții și tehnici comerciale', 'P18', 'P31', 'S', 'AF2', 'TrTehnCom'),
+    # ('AF222', 'Fiscalitate', 'P17', 'P16', 'S', 'AF2', 'Fisc'),
+    # ('AF223', 'Contabilitate managerială', 'P19', 'P14', 'S', 'AF2', 'CtMng'),
+    # ('AF224', 'Managementul producției', 'P21', 'P21', 'S', 'AF2', 'Mng prod'),
+    # ('AF225', 'Baze de date', 'P3', 'P29', 'L', 'AF2', 'BzDt'),
+    # ('AF226', 'Tehnica negocierilor în afaceri', 'P9', 'P20', 'S', 'AF2', 'Tehn neg af'),
+    # ('AF227', 'Contabilitatea grupurilor de societăți', 'P13', 'P13', 'S', 'AF2', 'Contab grup'),
+    # ('AF228', 'Marketing internațional', 'P33', 'P33', 'S', 'AF2', 'MK internaț'),
 ]
 
 groups_structure_data = [

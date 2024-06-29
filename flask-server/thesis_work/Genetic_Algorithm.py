@@ -7,7 +7,7 @@ def genetic_algorithm(self):
     POPULATION_SIZE = 100
     CROSSOVER_PROBABILITY = 0.8
     MUTATION_PROBABILITY = 0.2
-    NUM_GENERATIONS = 1000
+    NUM_GENERATIONS = 200
 
     # DEAP creator
     # Un tip de fitness care urmărește maximizarea valorii sale.
@@ -57,33 +57,33 @@ def genetic_algorithm(self):
     # print(best_individual)
 
     # List to store constraint violations
-    constraint_violations = []
+    # constraint_violations = []
 
     # Evaluate the best individual against constraints
-    if best_individual:
-        capacity_violations = self.evaluate_capacity(best_individual)
-        if capacity_violations < len(self.lectures_seminars_data):
-            constraint_violations.append(f"Capacity constraint violated: {len(self.lectures_seminars_data) - capacity_violations} times")
+    # if best_individual:
+    #     capacity_violations = self.evaluate_capacity(best_individual)
+    #     if capacity_violations < len(self.lectures_seminars_data):
+    #         constraint_violations.append(f"Capacity constraint violated: {len(self.lectures_seminars_data) - capacity_violations} times")
 
-        uniqueness_violations = len(best_individual) - self.evaluate_uniqueness(best_individual)
-        if uniqueness_violations > 0:
-            constraint_violations.append(f"Uniqueness constraint violated: {uniqueness_violations} times")
+    #     uniqueness_violations = len(best_individual) - self.evaluate_uniqueness(best_individual)
+    #     if uniqueness_violations > 0:
+    #         constraint_violations.append(f"Uniqueness constraint violated: {uniqueness_violations} times")
 
-        conflicting_schedule_violations = self.evaluate_conflicting_schedule(best_individual)
-        if conflicting_schedule_violations < 0:
-            constraint_violations.append(f"Conflicting schedule constraint violated: {-conflicting_schedule_violations} times")
+    #     conflicting_schedule_violations = self.evaluate_conflicting_schedule(best_individual)
+    #     if conflicting_schedule_violations < 0:
+    #         constraint_violations.append(f"Conflicting schedule constraint violated: {-conflicting_schedule_violations} times")
 
-        professor_courses_violations = self.evaluate_professor_courses_per_day(best_individual)
-        if professor_courses_violations < 0:
-            constraint_violations.append(f"Professor courses per day constraint violated: {-professor_courses_violations} times")
+    #     professor_courses_violations = self.evaluate_professor_courses_per_day(best_individual)
+    #     if professor_courses_violations < 0:
+    #         constraint_violations.append(f"Professor courses per day constraint violated: {-professor_courses_violations} times")
 
-        study_program_courses_violations = self.evaluate_study_program_courses_per_day(best_individual)
-        if study_program_courses_violations < 0:
-            constraint_violations.append(f"Study program courses per day constraint violated: {-study_program_courses_violations} times")
+    #     study_program_courses_violations = self.evaluate_study_program_courses_per_day(best_individual)
+    #     if study_program_courses_violations < 0:
+    #         constraint_violations.append(f"Study program courses per day constraint violated: {-study_program_courses_violations} times")
 
-    print("Constraint violations:")
-    for violation in constraint_violations:
-        print(violation)
+    # print("Constraint violations:")
+    # for violation in constraint_violations:
+    #     print(violation)
 
     # print("\nFinal Timetable:")
     for i, lecture_seminar_id in enumerate(self.lectures_seminars_data.keys()):
